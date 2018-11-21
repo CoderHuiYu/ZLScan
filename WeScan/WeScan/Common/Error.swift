@@ -16,7 +16,7 @@ public enum ImageScannerControllerError: Error {
     case inputDevice
     /// An error occured when trying to capture a picture.
     case capture
-    /// Error when creating the CIImage.
+    /// Error when creating the CIImage.test
     case ciImageCreation
 }
 
