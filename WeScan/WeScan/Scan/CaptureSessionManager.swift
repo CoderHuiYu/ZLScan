@@ -127,7 +127,6 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
     }
     
     internal func capturePhoto() {
-        //配置AVCapturePhotoSettings
         let photoSettings = AVCapturePhotoSettings()
         photoSettings.isHighResolutionPhotoEnabled = true
         photoSettings.isAutoStillImageStabilizationEnabled = true
@@ -135,12 +134,12 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
         if let photoOutputConnection = self.photoOutput.connection(with: .video) {
             photoOutputConnection.videoOrientation = AVCaptureVideoOrientation(deviceOrientation: UIDevice.current.orientation) ?? AVCaptureVideoOrientation.portrait
         }
-        //调系统方法进行获取图片，获取到的数据在代理进行回调//AVCapturePhotoCaptureDelegate
+        
         photoOutput.capturePhoto(with: photoSettings, delegate: self)
     }
     
     // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-    //这个代理方法就是用来-----绘制四边形在代理中执行---具体的看闭包的回调
+    
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard isDetecting == true else {
             return
@@ -151,9 +150,8 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
         }
         
         let finalImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let imageSize = finalImage.extent.size//获得image的size
+        let imageSize = finalImage.extent.size
         
-        //通过闭包进行回调
         if #available(iOS 11.0, *) {
             VisionRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
                 self.processRectangle(rectangle: rectangle, imageSize: imageSize)
@@ -166,7 +164,6 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
     }
     
     private func setImageOrientation() {
-        //陀螺仪
         var motion: CMMotionManager!
         motion = CMMotionManager()
         
@@ -205,11 +202,13 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
         }
     }
     
-    //处理四边形
     private func processRectangle(rectangle: Quadrilateral?, imageSize: CGSize) {
+        
         if let rectangle = rectangle {
-            
+            //检测到矩形
+            //重置计数
             self.noRectangleCount = 0
+            //漏斗增加矩阵
             self.rectangleFunnel.add(rectangle, currentlyDisplayedRectangle: self.displayedRectangleResult?.rectangle) { [weak self] (result, rectangle) in
                 
                 guard let strongSelf = self else {
@@ -217,27 +216,33 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
                 }
                 
                 let shouldAutoScan = (result == .showAndAutoScan)
+                //返回四边形交给ScannerVC代理绘制
                 strongSelf.displayRectangleResult(rectangleResult: RectangleDetectorResult(rectangle: rectangle, imageSize: imageSize))
                 if shouldAutoScan, CaptureSession.current.autoScanEnabled, !CaptureSession.current.isEditing {
+                    //跳转VC,绘制
                     capturePhoto()
                 }
             }
             
         } else {
-            //如果没检测出来 就 noRectangleCount+1。大于3次就修改
+            //没有检测到矩形
             DispatchQueue.main.async { [weak self] in
                 guard let strongSelf = self else {
                     return
                 }
+                //没有矩形计数+1
                 strongSelf.noRectangleCount += 1
                 
+                // 如果没有矩形计数 > 阈值，
                 if strongSelf.noRectangleCount > strongSelf.noRectangleThreshold {
                     // Reset the currentAutoScanPassCount, so the threshold is restarted the next time a rectangle is found
+                    //重置currentAutoScanPassCount，当下次矩形被找到时重启阈值
                     strongSelf.rectangleFunnel.currentAutoScanPassCount = 0
                     
                     // Remove the currently displayed rectangle as no rectangles are being found anymore
+                    //移除当前显示的矩形
                     strongSelf.displayedRectangleResult = nil
-                    //执行代理 让上层进行四边形的绘制 这里的回调是画不出四边形的 因为。didDetectQuad 为nil
+                    //调用ScannerVC中的代理方法
                     strongSelf.delegate?.captureSessionManager(strongSelf, didDetectQuad: nil, imageSize)
                 }
             }
@@ -255,7 +260,7 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
             guard let strongSelf = self else {
                 return
             }
-            //代理绘制4变形的绘制
+            
             strongSelf.delegate?.captureSessionManager(strongSelf, didDetectQuad: quad, rectangleResult.imageSize)
         }
         
@@ -311,7 +316,6 @@ extension CaptureSessionManager: AVCapturePhotoCaptureDelegate {
         }
     }
     
-    //完成了图片的处理 然后通过代理进行回调
     /// Completes the image capture by processing the image, and passing it to the delegate object.
     /// This function is necessary because the capture functions for iOS 10 and 11 are decoupled.
     private func completeImageCapture(with imageData: Data) {
@@ -365,3 +369,4 @@ private struct RectangleDetectorResult {
     let imageSize: CGSize
     
 }
+
