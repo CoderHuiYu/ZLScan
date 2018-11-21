@@ -49,7 +49,6 @@ final class RectangleFeaturesFunnel {
     /// The queue of last added rectangles. The first rectangle is oldest one, and the last rectangle is the most recently added one.
     private var rectangles = [RectangleMatch]()
     
-    //最大的比较数
     /// The maximum number of rectangles to compare newly added rectangles with. Determines the maximum size of `rectangles`. Increasing this value will impact performance.
     let maxNumberOfRectangles = 8
     
@@ -58,7 +57,7 @@ final class RectangleFeaturesFunnel {
     let minNumberOfRectangles = 3
     
     /// The value in pixels used to determine if two rectangle match or not. A higher value will prevent displayed rectangles to be refreshed. On the opposite, a smaller value will make new rectangles be displayed constantly.
-    let matchingThreshold: CGFloat = 40.0 //阈值越小越会被绘制
+    let matchingThreshold: CGFloat = 40.0
     
     /// The minumum number of matching rectangles (within the `rectangle` queue), to be confident enough to display a rectangle.
     let minNumberOfMatches = 3
@@ -86,32 +85,37 @@ final class RectangleFeaturesFunnel {
     ///   - currentRectangle: The currently displayed rectangle. This is used to avoid displaying very close rectangles.
     ///   - completion: The completion block called when a new rectangle should be displayed.
     func add(_ rectangleFeature: Quadrilateral, currentlyDisplayedRectangle currentRectangle: Quadrilateral?, completion: (AddResult, Quadrilateral) -> Void) {
-        let rectangleMatch = RectangleMatch(rectangleFeature: rectangleFeature)
-        rectangles.append(rectangleMatch)
         
+        //创建矩阵匹配对象
+        let rectangleMatch = RectangleMatch(rectangleFeature: rectangleFeature)
+        //矩阵匹配对象数组
+        rectangles.append(rectangleMatch)
+        //矩阵匹配对象数组 满足最小对比数 进行接下来的步骤
         guard rectangles.count >= minNumberOfRectangles else {
             return
         }
-        
+        //矩阵匹配对象数组 大于设定最大数 移除
         if rectangles.count > maxNumberOfRectangles {
             rectangles.removeFirst()
         }
-        
+        //更新数组，计算matchingScore
         updateRectangleMatches()
         
+        //返回最好的矩形
         guard let bestRectangle = bestRectangle(withCurrentlyDisplayedRectangle: currentRectangle) else {
             return
         }
         
-        //这里的比较机制
-        if let previousRectangle = currentRectangle,
-            bestRectangle.rectangleFeature.isWithin(autoScanMatchingThreshold, ofRectangleFeature: previousRectangle) {
+        if let previousRectangle = currentRectangle, bestRectangle.rectangleFeature.isWithin(autoScanMatchingThreshold, ofRectangleFeature: previousRectangle) {
+            //如果当前有矩形，且当前矩形在最好的矩形阈值范围内
             currentAutoScanPassCount += 1
+            //矩形画面稳定时
             if currentAutoScanPassCount > autoScanThreshold {
                 currentAutoScanPassCount = 0
                 completion(AddResult.showAndAutoScan, bestRectangle.rectangleFeature)
             }
         } else {
+            //执行完成闭包
             completion(AddResult.showOnly, bestRectangle.rectangleFeature)
         }
     }
@@ -127,10 +131,11 @@ final class RectangleFeaturesFunnel {
         guard !rectangles.isEmpty else { return nil }
         rectangles.reversed().forEach { (rectangle) in
             guard let best = bestMatch else {
+                //bestMatch没有的话，就默认赋值数组里的第一个
                 bestMatch = rectangle
                 return
             }
-            
+            //选择matchingScore高的
             if rectangle.matchingScore > best.matchingScore {
                 bestMatch = rectangle
                 return
@@ -138,7 +143,7 @@ final class RectangleFeaturesFunnel {
                 guard let currentRectangle = currentRectangle else {
                     return
                 }
-                
+                //返回最优
                 bestMatch = breakTie(between: best, rect2: rectangle, currentRectangle: currentRectangle)
             }
         }
@@ -157,6 +162,8 @@ final class RectangleFeaturesFunnel {
     ///   - currentRectangle: The currently displayed rectangle. This is used to avoid displaying very close rectangles.
     /// - Returns: The best rectangle to display between two rectangles with the same matching score.
     private func breakTie(between rect1: RectangleMatch, rect2: RectangleMatch, currentRectangle: Quadrilateral) -> RectangleMatch {
+        
+        //如果rectangle，在best的阈值范围内，则返回best，否则拿rectangle和currentRectangle比较，如果currentRectangle在rectangle阈值范围内，则返回阈值范围内 ，都不满足，返回best
         if rect1.rectangleFeature.isWithin(matchingThreshold, ofRectangleFeature: currentRectangle) {
             return rect1
         } else if rect2.rectangleFeature.isWithin(matchingThreshold, ofRectangleFeature: currentRectangle) {
@@ -168,11 +175,13 @@ final class RectangleFeaturesFunnel {
     
     /// Loops through all of the rectangles of the queue, and gives them a score depending on how many they match. @see `RectangleMatch.matchingScore`
     private func updateRectangleMatches() {
+        //重置匹配分数
         resetMatchingScores()
         guard !rectangles.isEmpty else { return }
         for (i, currentRect) in rectangles.enumerated() {
             for (j, rect) in rectangles.enumerated() {
-                if j > i && currentRect.matches(rect.rectangleFeature, withThreshold: matchingThreshold) {
+                if j > i && currentRect.matches(rect.rectangleFeature, withThreshold: matchingThreshold){
+                    //检测rect的四个点是否在currentRect的对应点的阈值范围内
                     currentRect.matchingScore += 1
                     rect.matchingScore += 1
                 }
