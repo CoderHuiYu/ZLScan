@@ -10,7 +10,7 @@ import UIKit
 import WeScan
 
 final class HomeViewController: UIViewController {
-    
+    //"barry"
     lazy private var logoImageView: UIImageView = {
         let image = UIImage(named: "WeScanLogo")
         let imageView = UIImageView(image: image)
