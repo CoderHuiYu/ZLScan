@@ -19,7 +19,7 @@ public enum ImageScannerControllerError: Error {
     /// Error when creating the CIImage.
     case ciImageCreation
 }
-
+//test
 extension ImageScannerControllerError: LocalizedError {
     
     public var errorDescription: String? {
