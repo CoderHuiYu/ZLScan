@@ -12,7 +12,7 @@ import WeScan
 final class HomeViewController: UIViewController {
     // http:www.baidu.com
     //"barry"
-
+    // www.abc.com
     lazy private var logoImageView: UIImageView = {
         let image = UIImage(named: "WeScanLogo")
         let imageView = UIImageView(image: image)
