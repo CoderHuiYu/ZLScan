@@ -15,7 +15,8 @@ final class ReviewViewController: UIViewController {
         let imageView = UIImageView()
         imageView.clipsToBounds = true
         imageView.isOpaque = true
-        imageView.image = results.scannedImage
+//        imageView.image = results.scannedImage
+        imageView.image = results.scannedImage.filter(name: "CILinearToSRGBToneCurve", parameters: [String : Any]())
         imageView.isHighlighted = true
         imageView.backgroundColor = .black
         imageView.contentMode = .scaleAspectFit
@@ -29,7 +30,13 @@ final class ReviewViewController: UIViewController {
         button.tintColor = navigationController?.navigationBar.tintColor
         return button
     }()
-    
+    lazy private var restoreButton: UIButton = {
+        let restoreButton = UIButton()
+        restoreButton.setTitle("Restore", for: .normal)
+        restoreButton.setTitleColor(UIColor.white, for: .normal)
+        restoreButton.addTarget(self, action: #selector(restoreButtonClick), for: .touchUpInside)
+        return restoreButton
+    }()
     private let results: ImageScannerResults
     
     // MARK: - Life Cycle
@@ -57,6 +64,7 @@ final class ReviewViewController: UIViewController {
     
     private func setupViews() {
         view.addSubview(imageView)
+        view.addSubview(restoreButton)
     }
     
     private func setupConstraints() {
@@ -68,6 +76,7 @@ final class ReviewViewController: UIViewController {
         ]
         
         NSLayoutConstraint.activate(imageViewConstraints)
+        restoreButton.frame = CGRect(x: 10, y: 30, width: 100, height: 100)
     }
     
     // MARK: - Actions
@@ -77,6 +86,16 @@ final class ReviewViewController: UIViewController {
         var newResults = results
         newResults.scannedImage = results.scannedImage
         imageScannerController.imageScannerDelegate?.imageScannerController(imageScannerController, didFinishScanningWithResults: newResults)
+    }
+    @objc func restoreButtonClick(){
+        restoreButton.isSelected = !restoreButton.isSelected
+        if restoreButton.isSelected{
+            imageView.image = results.scannedImage
+            restoreButton.setTitle("Filter", for: .normal)
+        }else{
+            imageView.image = results.scannedImage.filter(name: "CILinearToSRGBToneCurve", parameters: [String : Any]())
+            restoreButton.setTitle("Restore", for: .normal)
+        }
     }
 
 }
