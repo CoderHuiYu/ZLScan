@@ -48,6 +48,8 @@ final class HomeViewController: UIViewController {
         
         setupViews()
         setupConstraints()
+        
+        
     }
     
     // MARK: - Setups
@@ -106,3 +108,5 @@ extension HomeViewController: ImageScannerControllerDelegate {
     }
     
 }
+
+

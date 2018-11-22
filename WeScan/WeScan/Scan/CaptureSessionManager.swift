@@ -152,14 +152,18 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
         let finalImage = CIImage(cvPixelBuffer: pixelBuffer)
         let imageSize = finalImage.extent.size
         
-        if #available(iOS 11.0, *) {
-            VisionRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
-                self.processRectangle(rectangle: rectangle, imageSize: imageSize)
-            }
-        } else {
-            CIRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
-                self.processRectangle(rectangle: rectangle, imageSize: imageSize)
-            }
+//        if #available(iOS 11.0, *) {
+//            VisionRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
+//                self.processRectangle(rectangle: rectangle, imageSize: imageSize)
+//            }
+//        } else {
+//            CIRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
+//                self.processRectangle(rectangle: rectangle, imageSize: imageSize)
+//            }
+//        }
+        
+        CIRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
+            self.processRectangle(rectangle: rectangle, imageSize: imageSize)
         }
     }
     
