@@ -150,19 +150,27 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
         }
         
         let finalImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let imageSize = finalImage.extent.size
+//        let imageSize = finalImage.extent.size
+        let imageSize = filteredImageUsingContrastFilter(image: finalImage).extent.size
         
-        if #available(iOS 11.0, *) {
-            VisionRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
-                self.processRectangle(rectangle: rectangle, imageSize: imageSize)
-            }
-        } else {
+//        if #available(iOS 11.0, *) {
+//            VisionRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
+//                self.processRectangle(rectangle: rectangle, imageSize: imageSize)
+//            }
+//        } else {
             CIRectangleDetector.rectangle(forImage: finalImage) { (rectangle) in
                 self.processRectangle(rectangle: rectangle, imageSize: imageSize)
             }
-        }
+//        }
     }
-    
+    func filteredImageUsingContrastFilter(image: CIImage) -> CIImage{
+        let  filter = CIFilter(name: "CIColorControls", parameters: ["inputContrast":(1.1),kCIInputImageKey:image])
+        return (filter?.outputImage!)!
+    }
+//    - (CIImage *)filteredImageUsingContrastFilterOnImage:(CIImage *)image
+//    {
+//    return [CIFilter filterWithName:@"CIColorControls" withInputParameters:@{@"inputContrast":@(1.1),kCIInputImageKey:image}].outputImage;
+//    }
     private func setImageOrientation() {
         var motion: CMMotionManager!
         motion = CMMotionManager()
