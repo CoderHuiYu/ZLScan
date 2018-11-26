@@ -16,7 +16,7 @@ final class ReviewViewController: UIViewController {
         imageView.clipsToBounds = true
         imageView.isOpaque = true
 //        imageView.image = results.scannedImage
-        imageView.image = results.scannedImage.filter(name: "CILinearToSRGBToneCurve", parameters: [String : Any]())
+        imageView.image = results.scannedImage.filter(name: "CIColorControls", parameters: ["inputContrast":1.35])
         imageView.isHighlighted = true
         imageView.backgroundColor = .black
         imageView.contentMode = .scaleAspectFit
@@ -29,7 +29,6 @@ final class ReviewViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString("Edit Edges", comment: ""), for: .normal)
         button.tintColor = UIColor.white
-//        button.titleLabel?.font = UIFont.zillyFont(size: .size19, weight: ZLFontWeight.bold)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 19)
         button.addTarget(self, action: #selector(self.editEdges), for: .touchUpInside)
         return button
@@ -40,7 +39,6 @@ final class ReviewViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString("Restore Colors", comment: ""), for: .normal)
         button.tintColor = UIColor.white
-//        button.titleLabel?.font = UIFont.zillyFont(size: .size19, weight: ZLFontWeight.bold)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 19)
         button.addTarget(self, action: #selector(self.editColors), for: .touchUpInside)
         return button
@@ -150,12 +148,10 @@ final class ReviewViewController: UIViewController {
             imageView.image = results.scannedImage
             editColorsButton.setTitle("Edit Color", for: .normal)
         } else{
-            imageView.image = results.scannedImage.filter(name: "CILinearToSRGBToneCurve", parameters: [String : Any]())
+            imageView.image = results.scannedImage.filter(name: "CIColorControls", parameters: ["inputContrast":1.35])
             editColorsButton.setTitle("Restore Color", for: .normal)
         }
-        
     }
-    
     
     @objc private func finishScan() {
         guard let imageScannerController = navigationController as? ImageScannerController else { return }
