@@ -12,6 +12,9 @@ import AVFoundation
 /// The `EditScanViewController` offers an interface for the user to edit the detected quadrilateral.
 final class EditScanViewController: UIViewController {
     
+    var didEditResults: ((ImageScannerResults) -> ())?
+    var didEditQuad: ((Quadrilateral) -> ())?
+    
     lazy private var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.clipsToBounds = true
@@ -30,9 +33,16 @@ final class EditScanViewController: UIViewController {
         return quadView
     }()
     
+    lazy private var backButton: UIBarButtonItem = {
+        let title = NSLocalizedString("wescan.edit.button.back", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Back", comment: "A generic back button")
+        let button = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(navigationControllerPop))
+        button.tintColor = navigationController?.navigationBar.tintColor
+        return button
+    }()
+    
     lazy private var nextButton: UIBarButtonItem = {
-        let title = NSLocalizedString("wescan.edit.button.next", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Next", comment: "A generic next button")
-        let button = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(pushReviewController))
+        let title = NSLocalizedString("wescan.edit.button.done", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Done", comment: "A generic done button")
+        let button = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(finishEditing))
         button.tintColor = navigationController?.navigationBar.tintColor
         return button
     }()
@@ -67,7 +77,8 @@ final class EditScanViewController: UIViewController {
         setupConstraints()
         title = NSLocalizedString("wescan.edit.title", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Edit Scan", comment: "The title of the EditScanViewController")
         navigationItem.rightBarButtonItem = nextButton
-        
+        navigationItem.leftBarButtonItem = backButton
+
         zoomGestureController = ZoomGestureController(image: image, quadView: quadView)
         
         let touchDown = UILongPressGestureRecognizer(target: zoomGestureController, action: #selector(zoomGestureController.handle(pan:)))
@@ -123,8 +134,17 @@ final class EditScanViewController: UIViewController {
     }
     
     // MARK: - Actions
+    @objc func navigationControllerPop() {
+        if navigationController?.viewControllers.first == self {
+            self.dismiss(animated: true) {
+                
+            }
+        } else {
+            navigationController?.popViewController(animated: true)
+        }
+    }
     
-    @objc func pushReviewController() {
+    @objc func finishEditing() {
         guard let quad = quadView.quad,
             let ciImage = CIImage(image: image) else {
                 if let imageScannerController = navigationController as? ImageScannerController {
@@ -156,11 +176,10 @@ final class EditScanViewController: UIViewController {
             uiImage = UIImage(ciImage: filteredImage, scale: 1.0, orientation: .up)
         }
         
-        let finalImage = fixImageRotation(image: uiImage)
-        let results = ImageScannerResults(originalImage: image, scannedImage: finalImage, detectedRectangle: scaledQuad)
-        let reviewViewController = ReviewViewController(results: results)
-        
-        navigationController?.pushViewController(reviewViewController, animated: true)
+        let results = ImageScannerResults(originalImage: image, scannedImage: uiImage, detectedRectangle: scaledQuad)
+        didEditResults?(results)
+        didEditQuad?(scaledQuad)
+        dismiss(animated: true, completion: nil)
     }
     
     private func fixImageRotation(image: UIImage) -> UIImage {
