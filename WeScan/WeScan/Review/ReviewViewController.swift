@@ -38,7 +38,7 @@ final class ReviewViewController: UIViewController {
     lazy private var editColorsButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("Edit Colors", comment: ""), for: .normal)
+        button.setTitle(NSLocalizedString("Restore Colors", comment: ""), for: .normal)
         button.tintColor = UIColor.white
 //        button.titleLabel?.font = UIFont.zillyFont(size: .size19, weight: ZLFontWeight.bold)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 19)
@@ -148,10 +148,10 @@ final class ReviewViewController: UIViewController {
         editColorsButton.isSelected = !editColorsButton.isSelected
         if editColorsButton.isSelected{
             imageView.image = results.scannedImage
-            editColorsButton.setTitle("Filter", for: .normal)
+            editColorsButton.setTitle("Edit Color", for: .normal)
         } else{
             imageView.image = results.scannedImage.filter(name: "CILinearToSRGBToneCurve", parameters: [String : Any]())
-            editColorsButton.setTitle("Restore", for: .normal)
+            editColorsButton.setTitle("Restore Color", for: .normal)
         }
         
     }

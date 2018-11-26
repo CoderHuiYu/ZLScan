@@ -34,14 +34,14 @@ final class EditScanViewController: UIViewController {
     }()
     
     lazy private var backButton: UIBarButtonItem = {
-        let title = NSLocalizedString("wescan.edit.button.back", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Back", comment: "A generic back button")
+        let title = NSLocalizedString("wescan.edit.button.cancel", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Cancel", comment: "A generic cancel button")
         let button = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(navigationControllerPop))
         button.tintColor = navigationController?.navigationBar.tintColor
         return button
     }()
     
     lazy private var nextButton: UIBarButtonItem = {
-        let title = NSLocalizedString("wescan.edit.button.done", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Done", comment: "A generic done button")
+        let title = NSLocalizedString("wescan.edit.button.save", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Save", comment: "A generic save button")
         let button = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(finishEditing))
         button.tintColor = navigationController?.navigationBar.tintColor
         return button
