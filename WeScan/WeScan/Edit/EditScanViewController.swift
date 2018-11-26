@@ -33,14 +33,14 @@ final class EditScanViewController: UIViewController {
         return quadView
     }()
     
-    lazy private var backButton: UIBarButtonItem = {
+    lazy private var cancelButton: UIBarButtonItem = {
         let title = NSLocalizedString("wescan.edit.button.cancel", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Cancel", comment: "A generic cancel button")
         let button = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(navigationControllerPop))
         button.tintColor = navigationController?.navigationBar.tintColor
         return button
     }()
     
-    lazy private var nextButton: UIBarButtonItem = {
+    lazy private var saveButton: UIBarButtonItem = {
         let title = NSLocalizedString("wescan.edit.button.save", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Save", comment: "A generic save button")
         let button = UIBarButtonItem(title: title, style: .plain, target: self, action: #selector(finishEditing))
         button.tintColor = navigationController?.navigationBar.tintColor
@@ -76,8 +76,8 @@ final class EditScanViewController: UIViewController {
         setupViews()
         setupConstraints()
         title = NSLocalizedString("wescan.edit.title", tableName: nil, bundle: Bundle(for: EditScanViewController.self), value: "Edit Scan", comment: "The title of the EditScanViewController")
-        navigationItem.rightBarButtonItem = nextButton
-        navigationItem.leftBarButtonItem = backButton
+        navigationItem.rightBarButtonItem = saveButton
+        navigationItem.leftBarButtonItem = cancelButton
 
         zoomGestureController = ZoomGestureController(image: image, quadView: quadView)
         

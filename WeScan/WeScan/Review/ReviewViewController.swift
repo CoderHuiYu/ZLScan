@@ -57,7 +57,7 @@ final class ReviewViewController: UIViewController {
     private var originalScannedImage: UIImage
     // MARK: - Life Cycle
     
-    init(results: ImageScannerResults ,  quad: Quadrilateral) {
+    init(results: ImageScannerResults , quad: Quadrilateral) {
         self.results = results
         self.quad = quad
         self.originalScannedImage = results.scannedImage
@@ -156,7 +156,8 @@ final class ReviewViewController: UIViewController {
     @objc private func finishScan() {
         guard let imageScannerController = navigationController as? ImageScannerController else { return }
         var newResults = results
-        newResults.scannedImage = results.scannedImage
+        guard let resultImage = imageView.image else { return }
+        newResults.scannedImage = resultImage
         imageScannerController.imageScannerDelegate?.imageScannerController(imageScannerController, didFinishScanningWithResults: newResults)
     }
 

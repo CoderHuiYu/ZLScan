@@ -164,7 +164,7 @@ final class CaptureSessionManager: NSObject, AVCaptureVideoDataOutputSampleBuffe
         }
     }
     func filteredImageUsingContrastFilter(image: CIImage) -> CIImage{
-        let  filter = CIFilter(name: "CIColorControls", parameters: ["inputContrast":(1.1),kCIInputImageKey:image])
+        let  filter = CIFilter(name: "CIColorControls", parameters: ["inputContrast":(1.35),kCIInputImageKey:image])
         return (filter?.outputImage!)!
 //        return (CIFilter(name: "CIColorControls", parameters: ["inputContrast" :(1,1),kCIInputImageKey:image])?.outputImage)!
     }

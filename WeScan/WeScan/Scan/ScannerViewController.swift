@@ -240,7 +240,6 @@ extension ScannerViewController: RectangleDetectionDelegateProtocol {
     //检测到图片
     func captureSessionManager(_ captureSessionManager: CaptureSessionManager, didCapturePicture picture: UIImage, withQuad quad: Quadrilateral?) {
         activityIndicator.stopAnimating()
-        
         let image = picture.applyingPortraitOrientation()
         let quad = quad ?? ScannerViewController.defaultQuad(forImage: image)
         
